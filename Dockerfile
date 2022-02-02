@@ -13,5 +13,5 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt --compile --no-cache-dir
 COPY . .
 
-EXPOSE 8060
+EXPOSE 8050
 ENTRYPOINT ["python", "app.py"]

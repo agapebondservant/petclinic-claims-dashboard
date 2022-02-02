@@ -12,13 +12,13 @@ import os
 
 
 app = dash.Dash()
-
+temp_label='Updating...'
 
 def refresh_heatmap():
-    url = f'https://gemfire1-dev-api.{os.environ['SESSION_NAMESPACE']}.svc.cluster.local:7070/gemfire-api/v1/queries/adhoc'
-    r = requests.get(url, params = {"q": "select count(id),city from /claims group by city"})
-    response = r.json() 
-    # response = [{"id":36,"city":"Indianapolis"},{"id":38,"city":"Fort Worth"},{"id":36,"city":"Columbus"},{"id":37,"city":"Seattle"},{"id":43,"city":"San Jose"},{"id":45,"city":"San Francisco"},{"id":41,"city":"Charlotte"},{"id":60,"city":"Jacksonville"},{"id":35,"city":"Los Angeles"},{"id":50,"city":"San Diego"},{"id":33,"city":"Dallas"},{"id":38,"city":"San Antonio"},{"id":52,"city":"Philadelphia"},{"id":34,"city":"Washington"},{"id":48,"city":"Phoenix"},{"id":37,"city":"Houston"},{"id":47,"city":"Denver"},{"id":44,"city":"New York"},{"id":48,"city":"Austin"},{"id":44,"city":"Chicago"}]
+    #url = f'https://gemfire1-dev-api.{os.environ["SESSION_NAMESPACE"]}.svc.cluster.local:7070/gemfire-api/v1/queries/adhoc'
+    #r = requests.get(url, params = {"q": "select count(id),city from /claims group by city"})
+    #response = r.json() 
+    response = [{"id":36,"city":"Indianapolis"},{"id":38,"city":"Fort Worth"},{"id":36,"city":"Columbus"},{"id":37,"city":"Seattle"},{"id":43,"city":"San Jose"},{"id":45,"city":"San Francisco"},{"id":41,"city":"Charlotte"},{"id":60,"city":"Jacksonville"},{"id":35,"city":"Los Angeles"},{"id":50,"city":"San Diego"},{"id":33,"city":"Dallas"},{"id":38,"city":"San Antonio"},{"id":52,"city":"Philadelphia"},{"id":34,"city":"Washington"},{"id":48,"city":"Phoenix"},{"id":37,"city":"Houston"},{"id":47,"city":"Denver"},{"id":44,"city":"New York"},{"id":48,"city":"Austin"},{"id":44,"city":"Chicago"}]
     df = pd.DataFrame(data=sorted(response,key=lambda x: x["id"], reverse=True))
     df = df.head(5)
     df = df.pivot_table(values=df[['id']], columns='city', aggfunc=np.sum)
@@ -52,7 +52,8 @@ app.layout = html.Div(style={
                         'background': '#505050',
                         'color': '#6db33f' 
                     }),
-                    html.Label(children='Updating...',style={'margin-top': '10px', 'text-align':'right', 'background': '#505050', 'color': '#6db33f'}),
+                    dcc.Interval(id='interval1', interval=5 * 1000, n_intervals=0),
+                    html.Label(id='label1',children='Updating...',style={'margin-top': '10px', 'text-align':'right', 'background': '#505050', 'color': '#6db33f'}),
                     html.Div(style={
                             'margin-top' : '10px',
                             'padding' : '10px',
@@ -66,6 +67,17 @@ app.layout = html.Div(style={
         )   
     ])
 ])
+
+@app.callback(dash.dependencies.Output('label1', 'children'),
+    [dash.dependencies.Input('interval1', 'n_intervals')])
+def update_interval(n):
+    temp_label = 'Updating...' if '' else ''
+    return temp_label
+
+@app.callback(dash.dependencies.Output('graph1', 'figure'),
+    [dash.dependencies.Input('interval1', 'n_intervals')])
+def update_interval(n):
+    return refresh_heatmap()
 
 if __name__ == '__main__':
     app.run_server(host="0.0.0.0", debug=True)
