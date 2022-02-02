@@ -52,7 +52,7 @@ app.layout = html.Div(style={
                         'background': '#505050',
                         'color': '#6db33f' 
                     }),
-                    html.Label(children='Last Updated: ',style={'margin-top': '10px', 'text-align':'right', 'background': '#505050', 'color': '#6db33f'}),
+                    html.Label(children='Updating...',style={'margin-top': '10px', 'text-align':'right', 'background': '#505050', 'color': '#6db33f'}),
                     html.Div(style={
                             'margin-top' : '10px',
                             'padding' : '10px',
